@@ -8115,28 +8115,33 @@
     ]
   },
   "packageFolders": {
-    "/home/gustavo/.nuget/packages/": {},
-    "/home/gustavo/.dotnet/sdk/NuGetFallbackFolder": {}
+    "C:\\Users\\fglaeser\\.nuget\\packages\\": {},
+    "C:\\Microsoft\\Xamarin\\NuGet\\": {},
+    "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/home/gustavo/projects/andreani/netCoreComponents/simple-netcore-processor/simple-netcore-processor.csproj",
+      "projectUniqueName": "C:\\sandbox\\eandreani\\nalabs-netcore-processor\\simple-netcore-processor\\simple-netcore-processor.csproj",
       "projectName": "simple-netcore-processor",
-      "projectPath": "/home/gustavo/projects/andreani/netCoreComponents/simple-netcore-processor/simple-netcore-processor.csproj",
-      "packagesPath": "/home/gustavo/.nuget/packages/",
-      "outputPath": "/home/gustavo/projects/andreani/netCoreComponents/simple-netcore-processor/obj/",
+      "projectPath": "C:\\sandbox\\eandreani\\nalabs-netcore-processor\\simple-netcore-processor\\simple-netcore-processor.csproj",
+      "packagesPath": "C:\\Users\\fglaeser\\.nuget\\packages\\",
+      "outputPath": "C:\\sandbox\\eandreani\\nalabs-netcore-processor\\simple-netcore-processor\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
-        "/home/gustavo/.dotnet/sdk/NuGetFallbackFolder"
+        "C:\\Microsoft\\Xamarin\\NuGet\\",
+        "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
       ],
       "configFilePaths": [
-        "/home/gustavo/.nuget/NuGet/NuGet.Config"
+        "C:\\Users\\fglaeser\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Xamarin.Offline.config"
       ],
       "originalTargetFrameworks": [
         "netcoreapp3.1"
       ],
       "sources": {
+        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
@@ -8192,7 +8197,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "/home/gustavo/.dotnet/sdk/3.1.102/RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\3.1.404\\RuntimeIdentifierGraph.json"
       }
     }
   }

@@ -24,6 +24,8 @@
     ".NETCoreApp,Version=v3.1": {
       "simple-netcore-processor/1.0.0": {
         "dependencies": {
+          "Confluent.SchemaRegistry": "1.5.3",
+          "Confluent.SchemaRegistry.Serdes.Avro": "1.5.3",
           "Microsoft.VisualStudio.Web.CodeGeneration.Design": "3.1.1",
           "Newtonsoft.Json": "12.0.3",
           "Streamiz.Kafka.Net": "1.1.3",
@@ -317,22 +319,74 @@
           "simple-netcore-processor.dll": {}
         }
       },
-      "Confluent.Kafka/1.5.2": {
+      "Apache.Avro/1.10.1": {
+        "dependencies": {
+          "Newtonsoft.Json": "12.0.3",
+          "System.CodeDom": "4.4.0",
+          "System.Reflection": "4.3.0",
+          "System.Reflection.Emit.ILGeneration": "4.3.0",
+          "System.Reflection.Emit.Lightweight": "4.3.0"
+        },
+        "runtime": {
+          "lib/netcoreapp2.1/Avro.dll": {
+            "assemblyVersion": "1.10.0.0",
+            "fileVersion": "1.10.0.0"
+          }
+        },
+        "compile": {
+          "lib/netcoreapp2.1/Avro.dll": {}
+        }
+      },
+      "Confluent.Kafka/1.5.3": {
         "dependencies": {
           "System.Memory": "4.5.3",
-          "librdkafka.redist": "1.5.2"
+          "librdkafka.redist": "1.5.3"
         },
         "runtime": {
           "lib/netcoreapp2.1/Confluent.Kafka.dll": {
-            "assemblyVersion": "1.5.2.0",
-            "fileVersion": "1.5.2.0"
+            "assemblyVersion": "1.5.3.0",
+            "fileVersion": "1.5.3.0"
           }
         },
         "compile": {
           "lib/netcoreapp2.1/Confluent.Kafka.dll": {}
         }
       },
-      "librdkafka.redist/1.5.2": {
+      "Confluent.SchemaRegistry/1.5.3": {
+        "dependencies": {
+          "Confluent.Kafka": "1.5.3",
+          "Newtonsoft.Json": "12.0.3",
+          "System.Net.Http": "4.3.0"
+        },
+        "runtime": {
+          "lib/netstandard2.0/Confluent.SchemaRegistry.dll": {
+            "assemblyVersion": "1.5.3.0",
+            "fileVersion": "1.5.3.0"
+          }
+        },
+        "compile": {
+          "lib/netstandard2.0/Confluent.SchemaRegistry.dll": {}
+        }
+      },
+      "Confluent.SchemaRegistry.Serdes.Avro/1.5.3": {
+        "dependencies": {
+          "Apache.Avro": "1.10.1",
+          "Confluent.Kafka": "1.5.3",
+          "Confluent.SchemaRegistry": "1.5.3",
+          "System.Net.NameResolution": "4.3.0",
+          "System.Net.Sockets": "4.3.0"
+        },
+        "runtime": {
+          "lib/netstandard2.0/Confluent.SchemaRegistry.Serdes.Avro.dll": {
+            "assemblyVersion": "1.5.3.0",
+            "fileVersion": "1.5.3.0"
+          }
+        },
+        "compile": {
+          "lib/netstandard2.0/Confluent.SchemaRegistry.Serdes.Avro.dll": {}
+        }
+      },
+      "librdkafka.redist/1.5.3": {
         "runtimeTargets": {
           "runtimes/linux-x64/native/alpine-librdkafka.so": {
             "rid": "linux-x64",
@@ -377,17 +431,17 @@
           "runtimes/win-x64/native/msvcp120.dll": {
             "rid": "win-x64",
             "assetType": "native",
-            "fileVersion": "0.0.0.0"
+            "fileVersion": "12.0.21005.1"
           },
           "runtimes/win-x64/native/msvcr120.dll": {
             "rid": "win-x64",
             "assetType": "native",
-            "fileVersion": "0.0.0.0"
+            "fileVersion": "12.0.21005.1"
           },
           "runtimes/win-x64/native/zlib.dll": {
             "rid": "win-x64",
             "assetType": "native",
-            "fileVersion": "0.0.0.0"
+            "fileVersion": "1.2.8.0"
           },
           "runtimes/win-x86/native/librdkafka.dll": {
             "rid": "win-x86",
@@ -407,17 +461,17 @@
           "runtimes/win-x86/native/msvcp120.dll": {
             "rid": "win-x86",
             "assetType": "native",
-            "fileVersion": "0.0.0.0"
+            "fileVersion": "12.0.21005.1"
           },
           "runtimes/win-x86/native/msvcr120.dll": {
             "rid": "win-x86",
             "assetType": "native",
-            "fileVersion": "0.0.0.0"
+            "fileVersion": "12.0.21005.1"
           },
           "runtimes/win-x86/native/zlib.dll": {
             "rid": "win-x86",
             "assetType": "native",
-            "fileVersion": "0.0.0.0"
+            "fileVersion": "1.2.8.0"
           }
         }
       },
@@ -433,7 +487,7 @@
           "System.IO.FileSystem": "4.3.0",
           "System.IO.FileSystem.Watcher": "4.0.0",
           "System.Linq": "4.3.0",
-          "System.Net.NameResolution": "4.0.0",
+          "System.Net.NameResolution": "4.3.0",
           "System.Net.Requests": "4.0.11",
           "System.Net.Sockets": "4.3.0",
           "System.Reflection": "4.3.0",
@@ -1006,7 +1060,7 @@
       "runtime.ubuntu.16.10-x64.runtime.native.System.Security.Cryptography.OpenSsl/4.3.0": {},
       "Streamiz.Kafka.Net/1.1.3": {
         "dependencies": {
-          "Confluent.Kafka": "1.5.2",
+          "Confluent.Kafka": "1.5.3",
           "Microsoft.CSharp": "4.7.0",
           "System.Dynamic.Runtime": "4.3.0",
           "log4net": "2.0.8"
@@ -1033,6 +1087,17 @@
           "System.Resources.ResourceManager": "4.3.0",
           "System.Runtime": "4.3.0",
           "System.Threading": "4.3.0"
+        }
+      },
+      "System.CodeDom/4.4.0": {
+        "runtime": {
+          "lib/netstandard2.0/System.CodeDom.dll": {
+            "assemblyVersion": "4.0.0.0",
+            "fileVersion": "4.6.25519.3"
+          }
+        },
+        "compile": {
+          "ref/netstandard2.0/System.CodeDom.dll": {}
         }
       },
       "System.Collections/4.3.0": {
@@ -1459,7 +1524,7 @@
           "runtime.native.System.Security.Cryptography.OpenSsl": "4.3.0"
         }
       },
-      "System.Net.NameResolution/4.0.0": {
+      "System.Net.NameResolution/4.3.0": {
         "dependencies": {
           "Microsoft.NETCore.Platforms": "2.1.2",
           "System.Collections": "4.3.0",
@@ -1471,7 +1536,7 @@
           "System.Runtime.Extensions": "4.3.0",
           "System.Runtime.Handles": "4.3.0",
           "System.Runtime.InteropServices": "4.3.0",
-          "System.Security.Principal.Windows": "4.0.0",
+          "System.Security.Principal.Windows": "4.3.0",
           "System.Threading": "4.3.0",
           "System.Threading.Tasks": "4.3.0",
           "runtime.native.System": "4.3.0"
@@ -1658,7 +1723,7 @@
           "System.Runtime": "4.3.0"
         }
       },
-      "System.Security.Claims/4.0.1": {
+      "System.Security.Claims/4.3.0": {
         "dependencies": {
           "System.Collections": "4.3.0",
           "System.Globalization": "4.3.0",
@@ -1666,7 +1731,7 @@
           "System.Resources.ResourceManager": "4.3.0",
           "System.Runtime": "4.3.0",
           "System.Runtime.Extensions": "4.3.0",
-          "System.Security.Principal": "4.0.1"
+          "System.Security.Principal": "4.3.0"
         }
       },
       "System.Security.Cryptography.Algorithms/4.3.0": {
@@ -1792,12 +1857,12 @@
           "runtime.native.System.Security.Cryptography.OpenSsl": "4.3.0"
         }
       },
-      "System.Security.Principal/4.0.1": {
+      "System.Security.Principal/4.3.0": {
         "dependencies": {
           "System.Runtime": "4.3.0"
         }
       },
-      "System.Security.Principal.Windows/4.0.0": {
+      "System.Security.Principal.Windows/4.3.0": {
         "dependencies": {
           "Microsoft.NETCore.Platforms": "2.1.2",
           "Microsoft.Win32.Primitives": "4.3.0",
@@ -1809,8 +1874,8 @@
           "System.Runtime.Extensions": "4.3.0",
           "System.Runtime.Handles": "4.3.0",
           "System.Runtime.InteropServices": "4.3.0",
-          "System.Security.Claims": "4.0.1",
-          "System.Security.Principal": "4.0.1",
+          "System.Security.Claims": "4.3.0",
+          "System.Security.Principal": "4.3.0",
           "System.Text.Encoding": "4.3.0",
           "System.Threading": "4.3.0"
         }
@@ -3631,19 +3696,40 @@
       "serviceable": false,
       "sha512": ""
     },
-    "Confluent.Kafka/1.5.2": {
+    "Apache.Avro/1.10.1": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-VUoebb/sBX193Xs5j0f4bk1KBKMz+ZsF6h1aSVrOpysvvnDLQGgiLgiaGJo6yDhq7L1qcd4ElBPbeFZpPrB9Rg==",
-      "path": "confluent.kafka/1.5.2",
-      "hashPath": "confluent.kafka.1.5.2.nupkg.sha512"
+      "sha512": "sha512-KuNCdihC9ZVf11iZ5x2hB44CXDB0RpTpcDdulcp9bULAkuB3+rj3+jdaHmMySdwgfntPUn9s0cCC3bEiLr0GDA==",
+      "path": "apache.avro/1.10.1",
+      "hashPath": "apache.avro.1.10.1.nupkg.sha512"
     },
-    "librdkafka.redist/1.5.2": {
+    "Confluent.Kafka/1.5.3": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-yGq+QN6bF05xO/2qDDeQ6cXSrirI9llBmEhPe7iKNq/vHCtdooTvolrKqROJ4ciT1whVjAgUQYC28y5GO+Kvqg==",
-      "path": "librdkafka.redist/1.5.2",
-      "hashPath": "librdkafka.redist.1.5.2.nupkg.sha512"
+      "sha512": "sha512-rpDn5UaAswv4CGZpogvPCkSPci0Dfzcmt4EZyF1euGoBJsIdJD1WbRqbsqg0/lk6QMtXvO3csVPK2w992MzcoQ==",
+      "path": "confluent.kafka/1.5.3",
+      "hashPath": "confluent.kafka.1.5.3.nupkg.sha512"
+    },
+    "Confluent.SchemaRegistry/1.5.3": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-6LIpT/J86ZNKTNRQPj0RFaMMVt6AEVlqz/cdlHy1kLg7z0rwJqgM4RY1nEjPGpU1dMuHKt3e9jNtDrTnEHB7bQ==",
+      "path": "confluent.schemaregistry/1.5.3",
+      "hashPath": "confluent.schemaregistry.1.5.3.nupkg.sha512"
+    },
+    "Confluent.SchemaRegistry.Serdes.Avro/1.5.3": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-AMK5MiR6nOaqKVj6WFJk6msoXEhb/9NvhN0wVsOX4Yvuvwcm9+RR/+ASf6sqR0MUPJ11drE8XhpNIO/4cDrHQQ==",
+      "path": "confluent.schemaregistry.serdes.avro/1.5.3",
+      "hashPath": "confluent.schemaregistry.serdes.avro.1.5.3.nupkg.sha512"
+    },
+    "librdkafka.redist/1.5.3": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-cB4t+bp6Rb3SVAsnn1fbTBcCWLNbsMnwpbbV4T9jucKQ5Z3Sn/Wo3ji8BdJ9B+xWR7DkiRnQuIu3quvanJgFXQ==",
+      "path": "librdkafka.redist/1.5.3",
+      "hashPath": "librdkafka.redist.1.5.3.nupkg.sha512"
     },
     "log4net/2.0.8": {
       "type": "package",
@@ -3981,6 +4067,13 @@
       "path": "system.buffers/4.3.0",
       "hashPath": "system.buffers.4.3.0.nupkg.sha512"
     },
+    "System.CodeDom/4.4.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-2sCCb7doXEwtYAbqzbF/8UAeDRMNmPaQbU2q50Psg1J9KzumyVVCgKQY8s53WIPTufNT0DpSe9QRvVjOzfDWBA==",
+      "path": "system.codedom/4.4.0",
+      "hashPath": "system.codedom.4.4.0.nupkg.sha512"
+    },
     "System.Collections/4.3.0": {
       "type": "package",
       "serviceable": true,
@@ -4205,12 +4298,12 @@
       "path": "system.net.http/4.3.0",
       "hashPath": "system.net.http.4.3.0.nupkg.sha512"
     },
-    "System.Net.NameResolution/4.0.0": {
+    "System.Net.NameResolution/4.3.0": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-JdqRdM1Qym3YehqdKIi5LHrpypP4JMfxKQSNCJ2z4WawkG0il+N3XfNeJOxll2XrTnG7WgYYPoeiu/KOwg0DQw==",
-      "path": "system.net.nameresolution/4.0.0",
-      "hashPath": "system.net.nameresolution.4.0.0.nupkg.sha512"
+      "sha512": "sha512-AFYl08R7MrsrEjqpQWTZWBadqXyTzNDaWpMqyxhb0d6sGhV6xMDKueuBXlLL30gz+DIRY6MpdgnHWlCh5wmq9w==",
+      "path": "system.net.nameresolution/4.3.0",
+      "hashPath": "system.net.nameresolution.4.3.0.nupkg.sha512"
     },
     "System.Net.Primitives/4.3.0": {
       "type": "package",
@@ -4373,12 +4466,12 @@
       "path": "system.runtime.serialization.primitives/4.3.0",
       "hashPath": "system.runtime.serialization.primitives.4.3.0.nupkg.sha512"
     },
-    "System.Security.Claims/4.0.1": {
+    "System.Security.Claims/4.3.0": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-4Jlp0OgJLS/Voj1kyFP6MJlIYp3crgfH8kNQk2p7+4JYfc1aAmh9PZyAMMbDhuoolGNtux9HqSOazsioRiDvCw==",
-      "path": "system.security.claims/4.0.1",
-      "hashPath": "system.security.claims.4.0.1.nupkg.sha512"
+      "sha512": "sha512-P/+BR/2lnc4PNDHt/TPBAWHVMLMRHsyYZbU1NphW4HIWzCggz8mJbTQQ3MKljFE7LS3WagmVFuBgoLcFzYXlkA==",
+      "path": "system.security.claims/4.3.0",
+      "hashPath": "system.security.claims.4.3.0.nupkg.sha512"
     },
     "System.Security.Cryptography.Algorithms/4.3.0": {
       "type": "package",
@@ -4429,19 +4522,19 @@
       "path": "system.security.cryptography.x509certificates/4.3.0",
       "hashPath": "system.security.cryptography.x509certificates.4.3.0.nupkg.sha512"
     },
-    "System.Security.Principal/4.0.1": {
+    "System.Security.Principal/4.3.0": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-On+SKhXY5rzxh/S8wlH1Rm0ogBlu7zyHNxeNBiXauNrhHRXAe9EuX8Yl5IOzLPGU5Z4kLWHMvORDOCG8iu9hww==",
-      "path": "system.security.principal/4.0.1",
-      "hashPath": "system.security.principal.4.0.1.nupkg.sha512"
+      "sha512": "sha512-I1tkfQlAoMM2URscUtpcRo/hX0jinXx6a/KUtEQoz3owaYwl3qwsO8cbzYVVnjxrzxjHo3nJC+62uolgeGIS9A==",
+      "path": "system.security.principal/4.3.0",
+      "hashPath": "system.security.principal.4.3.0.nupkg.sha512"
     },
-    "System.Security.Principal.Windows/4.0.0": {
+    "System.Security.Principal.Windows/4.3.0": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-iFx15AF3RMEPZn3COh8+Bb2Thv2zsmLd93RchS1b8Mj5SNYeGqbYNCSn5AES1+gq56p4ujGZPrl0xN7ngkXOHg==",
-      "path": "system.security.principal.windows/4.0.0",
-      "hashPath": "system.security.principal.windows.4.0.0.nupkg.sha512"
+      "sha512": "sha512-HVL1rvqYtnRCxFsYag/2le/ZfKLK4yMw79+s6FmKXbSCNN0JeAhrYxnRAHFoWRa0dEojsDcbBSpH3l22QxAVyw==",
+      "path": "system.security.principal.windows/4.3.0",
+      "hashPath": "system.security.principal.windows.4.3.0.nupkg.sha512"
     },
     "System.Text.Encoding/4.3.0": {
       "type": "package",

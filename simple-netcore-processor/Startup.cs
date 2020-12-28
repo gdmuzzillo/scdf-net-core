@@ -25,7 +25,9 @@ namespace simple_netcore_processor {
             var appSettingSection = Configuration.GetSection ("AppSettings");
             services.Configure<AppSettings> (appSettingSection);
             services.AddScoped<IHealthCheckService, HealthCheckService> ();
+            services.AddHostedService<StreamProcessor>();
             services.AddControllers ();
+
         }
 
         
