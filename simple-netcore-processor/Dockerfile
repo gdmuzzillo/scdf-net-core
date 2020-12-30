@@ -19,6 +19,6 @@ ENV PATH=/root/.dotnet:$PATH
 # build netcore project and publish
 RUN dotnet restore
 RUN dotnet build
-RUN dotnet publish 
+RUN dotnet publish -o /app/build/PublishOutput
 LABEL org.springframework.cloud.dataflow.spring.configuration.metadata.json="{  \"groups\": [{    \"name\": \"simple-netcore-processor\",    \"type\": \"org.springframework.cloud.stream.app.simple-netcore-processor.processor.SimpleNetcoreProcessorProcessorProperties\",    \"sourceType\": \"org.springframework.cloud.stream.app.simple-netcore-processor.processor.SimpleNetcoreProcessorProcessorProperties\"  }],  \"properties\": [    {      \"name\": \"simpleNetcoreProcessor.externaltopic\",      \"type\": \"java.lang.String\",      \"description\": \"An external Kafka topic to read as table for caputiring message enhancing data.\",      \"sourceType\": \"org.springframework.cloud.stream.app.simple-netcore-processor.processor.SimpleNetcoreProcessorProcessorProperties\",      \"defaultValue\": \"products\"    },    {      \"name\": \"simpleNetcoreProcessor.table\",      \"type\": \"java.lang.String\",      \"description\": \"The enhacing data table name.\",      \"sourceType\": \"org.springframework.cloud.stream.app.simple-netcore-processor.processor.SimpleNetcoreProcessorProcessorProperties\"    }      ],  \"hints\": []}"
 ENTRYPOINT ["dotnet","build/PublishOutput/simple-netcore-processor.dll"]
