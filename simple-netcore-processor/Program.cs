@@ -17,7 +17,7 @@ namespace simple_netcore_processor
 
             var config = new ConfigurationBuilder()
                 //.SetBasePath(Directory.GetCurrentDirectory())
-                .SetBasePath(AppContext.BaseDirectory)
+                .SetBasePath("/app/build/PublishOutput")
                 .AddEnvironmentVariables()
                 .AddCommandLine(args)
                 .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
@@ -25,7 +25,7 @@ namespace simple_netcore_processor
 
             var host = new WebHostBuilder()
                 //.UseContentRoot(Directory.GetCurrentDirectory())
-                .UseContentRoot(AppContext.BaseDirectory)
+                .UseContentRoot("/app/build/PublishOutput")
                 .UseConfiguration(config)
                 .UseStartup<Startup>()
                 .UseKestrel(
