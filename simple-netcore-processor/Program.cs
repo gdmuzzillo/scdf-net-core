@@ -16,14 +16,16 @@ namespace simple_netcore_processor
         {
 
             var config = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
+                //.SetBasePath(Directory.GetCurrentDirectory())
+                .SetBasePath(AppContext.BaseDirectory)
                 .AddEnvironmentVariables()
                 .AddCommandLine(args)
                 .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
                 .Build();
 
             var host = new WebHostBuilder()
-                .UseContentRoot(Directory.GetCurrentDirectory())
+                //.UseContentRoot(Directory.GetCurrentDirectory())
+                .UseContentRoot(AppContext.BaseDirectory)
                 .UseConfiguration(config)
                 .UseStartup<Startup>()
                 .UseKestrel(
