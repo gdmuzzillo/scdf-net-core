@@ -31,10 +31,10 @@ namespace simple_netcore_processor.Services {
 
             StreamBuilder builder = new StreamBuilder();
 
-            var table = builder.Table("product",
+            var table = builder.Table(config["simpleNetcoreProcessor.externaltopic"],
                                 new StringSerDes(),
                                 new StringSerDes(),
-                                InMemory<String,String>.As("product-store"));
+                                InMemory<String,String>.As(config["simpleNetcoreProcessor.table"]));
 
             builder.Stream<String, String, StringSerDes, StringSerDes>(config["spring.cloud.stream.bindings.input.destination"])
                     .Join(table, (order, product) => order + product)
