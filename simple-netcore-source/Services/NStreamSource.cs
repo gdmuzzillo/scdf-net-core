@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -15,6 +16,8 @@ namespace simple_netcore_source.Services
 
         private readonly IConfiguration _config;
         private IServiceProvider _services;
+
+        private IDataService _dataService;
         public NStreamSource(IConfiguration config, IServiceProvider services)
         {
             _config = config;
@@ -29,26 +32,34 @@ namespace simple_netcore_source.Services
 
             Console.WriteLine("Process");
 
-
-            
-
-            // Inyectamos los datos obtenidos al Stream
-            
-            var sConfig = new StreamConfig<StringSerDes, StringSerDes>();
-            sConfig.ApplicationId = config["SPRING_CLOUD_APPLICATION_GUID"];
-            sConfig.BootstrapServers = config["SPRING_CLOUD_STREAM_KAFKA_BINDER_BROKERS"];
-
-            StreamBuilder builder = new StreamBuilder();
+            using (var scope = services.CreateScope())
+            {
+                this._dataService = scope.ServiceProvider
+                        .GetRequiredService<IDataService>();
 
 
-            builder.Stream<String, String, StringSerDes, StringSerDes>(config["spring.cloud.stream.bindings.output.destination"])
-            .To(config["spring.cloud.stream.bindings.output.destination"]);
+                String[] capture = this._dataService.readData();
 
-            Topology t = builder.Build();
-            KafkaStream stream = new KafkaStream(t, sConfig);
+                // Inyectamos los datos obtenidos al Stream
 
-            await stream.StartAsync();
+                var sConfig = new StreamConfig<StringSerDes, StringSerDes>();
+                sConfig.ApplicationId = config["SPRING_CLOUD_APPLICATION_GUID"];
+                sConfig.BootstrapServers = config["SPRING_CLOUD_STREAM_KAFKA_BINDER_BROKERS"];
 
+                StreamBuilder builder = new StreamBuilder();
+
+                
+
+                builder.Table<String, String, StringSerDes, StringSerDes>(config["spring.cloud.stream.bindings.output.destination"])
+                .ToStream()
+                .To(config["spring.cloud.stream.bindings.output.destination"]);
+
+                Topology t = builder.Build();
+                KafkaStream stream = new KafkaStream(t, sConfig);
+                
+
+                await stream.StartAsync();
+            }
         }
     }
 }
