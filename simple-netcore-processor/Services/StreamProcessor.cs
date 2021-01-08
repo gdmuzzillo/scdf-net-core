@@ -37,6 +37,7 @@ namespace simple_netcore_processor.Services {
                                 InMemory<String,String>.As(config["simpleNetcoreProcessor.table"]));
 
             builder.Stream<String, String, StringSerDes, StringSerDes>(config["spring.cloud.stream.bindings.input.destination"])
+                    .map()
                     .Join(table, (order, product) => order + product)
             .To(config["spring.cloud.stream.bindings.output.destination"]);
 

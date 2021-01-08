@@ -7,7 +7,7 @@ using Microsoft.Extensions.Hosting;
 using Streamiz.Kafka.Net;
 using Streamiz.Kafka.Net.SerDes;
 using Streamiz.Kafka.Net.Stream;
-
+using Confluent.Kafka;
 
 namespace simple_netcore_source.Services
 {
@@ -46,16 +46,20 @@ namespace simple_netcore_source.Services
                 sConfig.ApplicationId = config["SPRING_CLOUD_APPLICATION_GUID"];
                 sConfig.BootstrapServers = config["SPRING_CLOUD_STREAM_KAFKA_BINDER_BROKERS"];
 
+                var supplier = new SyncKafkaSupplier();
+                var producer = supplier.GetProducer(sConfig.ToProducerConfig());
                 StreamBuilder builder = new StreamBuilder();
 
+
+
+                builder.Table<String, String, StringSerDes, StringSerDes>(config["spring.cloud.stream.bindings.output.destination"]);
+
+                var t = builder.Build();
+
+
+                KafkaStream stream = new KafkaStream(t, sConfig, supplier);
                 
-
-                builder.Table<String, String, StringSerDes, StringSerDes>(config["spring.cloud.stream.bindings.output.destination"])
-                .ToStream()
-                .To(config["spring.cloud.stream.bindings.output.destination"]);
-
-                Topology t = builder.Build();
-                KafkaStream stream = new KafkaStream(t, sConfig);
+                
                 
 
                 await stream.StartAsync();
