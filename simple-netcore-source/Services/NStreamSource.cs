@@ -6,8 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
 using Streamiz.Kafka.Net;
 using Streamiz.Kafka.Net.SerDes;
-using Streamiz.Kafka.Net.Stream;
-using Confluent.Kafka;
+
 
 namespace simple_netcore_source.Services
 {
@@ -59,7 +58,7 @@ namespace simple_netcore_source.Services
 
                 KafkaStream stream = new KafkaStream(t, sConfig, supplier);
                 
-                
+
                 
 
                 await stream.StartAsync();
