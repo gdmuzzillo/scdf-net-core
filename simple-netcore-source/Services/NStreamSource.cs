@@ -51,7 +51,7 @@ namespace simple_netcore_source.Services
 
 
 
-                builder.Table<String, String, StringSerDes, StringSerDes>(config["spring.cloud.stream.bindings.output.destination"]);
+                builder.Table<String, String, StringSerDes, StringSerDes>(config["spring.cloud.stream.bindings.output.destination"],null, config["table"] );
 
                 var t = builder.Build();
 
