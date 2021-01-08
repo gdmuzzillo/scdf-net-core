@@ -5,7 +5,7 @@ using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Helpers
+namespace simple_netcore_source.Helpers
 {
    
         class SyncProducer : IProducer<byte[], byte[]>

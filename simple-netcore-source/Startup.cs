@@ -10,9 +10,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using simple_netcore_processor.Helpers;
-using simple_netcore_processor.Services;
-namespace simple_netcore_processor {
+using simple_netcore_source.Helpers;
+using simple_netcore_source.Services;
+namespace simple_netcore_source {
     public class Startup {
         public Startup (IConfiguration configuration) {
             Configuration = configuration;
@@ -25,7 +25,7 @@ namespace simple_netcore_processor {
             var appSettingSection = Configuration.GetSection ("AppSettings");
             services.Configure<AppSettings> (appSettingSection);
             services.AddScoped<IHealthCheckService, HealthCheckService> ();
-//            services.AddHostedService<StreamProcessor>();
+           services.AddHostedService<NStreamSource>();
             services.AddControllers ();
 
         }

@@ -7,7 +7,7 @@ using Microsoft.Extensions.Hosting;
 using Streamiz.Kafka.Net;
 using Streamiz.Kafka.Net.SerDes;
 using simple_netcore_source.Helpers;
-
+using Confluent.Kafka;
 namespace simple_netcore_source.Services
 {
     public class NStreamSource : BackgroundService, INStreamSource 
@@ -36,6 +36,11 @@ namespace simple_netcore_source.Services
                 this._dataService = scope.ServiceProvider
                         .GetRequiredService<IDataService>();
 
+                bool isRunningState = false;
+                 
+                var timeout = TimeSpan.FromSeconds(10);
+                DateTime dt = DateTime.Now;
+
 
                 String[] capture = this._dataService.readData();
 
@@ -58,10 +63,39 @@ namespace simple_netcore_source.Services
 
                 KafkaStream stream = new KafkaStream(t, sConfig, supplier);
                 
+                stream.StateChanged += (old, @new) =>
+                {
+                    if (@new.Equals(KafkaStream.State.RUNNING))
+                    {
+                        isRunningState = true;
+                    }
+                };
 
-                
 
                 await stream.StartAsync();
+                
+                while (!isRunningState)
+            {
+                Thread.Sleep(250);
+                if (DateTime.Now > dt + timeout)
+                {
+                    break;
+                }
+            }
+
+            if (isRunningState)
+            {
+                var serdes = new StringSerDes();
+                producer.Produce("topic",
+                    new Confluent.Kafka.Message<byte[], byte[]>
+                    {
+                        Key = serdes.Serialize("key1", new SerializationContext()),
+                        Value = serdes.Serialize("coucou", new SerializationContext())
+                    });
+                Thread.Sleep(50);
+            }
+
+
             }
         }
     }

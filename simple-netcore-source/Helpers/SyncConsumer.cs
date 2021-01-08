@@ -7,7 +7,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 
-namespace Helpers
+namespace simple_netcore_source.Helpers
 {
     class SyncConsumer : IConsumer<byte[], byte[]>, IConsumerGroupMetadata
     {

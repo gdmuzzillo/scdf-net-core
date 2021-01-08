@@ -1,4 +1,4 @@
-namespace simple_netcore_processor.Services {
+namespace simple_netcore_source.Services {
     public class HealthCheckService : IHealthCheckService
      {
         public string check () {

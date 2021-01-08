@@ -1,4 +1,4 @@
-namespace simple_netcore_processor.Helpers
+namespace simple_netcore_source.Helpers
 {
    
     public class AppSettings

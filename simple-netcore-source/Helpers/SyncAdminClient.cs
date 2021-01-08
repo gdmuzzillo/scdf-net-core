@@ -3,7 +3,7 @@ using Confluent.Kafka.Admin;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-namespace Helpers
+namespace simple_netcore_source.Helpers
 {
         class SyncAdminClient : IAdminClient
     {

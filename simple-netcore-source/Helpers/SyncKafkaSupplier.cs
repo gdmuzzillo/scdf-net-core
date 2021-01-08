@@ -1,7 +1,6 @@
 using Confluent.Kafka;
-using Streamiz.Kafka.Net.Errors;
 using Streamiz.Kafka.Net.Kafka;
-using Helpers;
+
 namespace simple_netcore_source.Helpers
 {
     public class SyncKafkaSupplier : IKafkaSupplier
