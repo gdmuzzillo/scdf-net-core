@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
 using Streamiz.Kafka.Net;
 using Streamiz.Kafka.Net.SerDes;
-using Helpers;
+using simple_netcore_source.Helpers;
 
 namespace simple_netcore_source.Services
 {
