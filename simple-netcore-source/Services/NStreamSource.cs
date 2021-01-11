@@ -8,6 +8,8 @@ using Streamiz.Kafka.Net;
 using Streamiz.Kafka.Net.SerDes;
 using simple_netcore_source.Helpers;
 using Confluent.Kafka;
+using com.avro.bean;
+using Streamiz.Kafka.Net.SchemaRegistry.SerDes.Avro;
 namespace simple_netcore_source.Services
 {
     public class NStreamSource : BackgroundService, INStreamSource 
@@ -59,7 +61,7 @@ namespace simple_netcore_source.Services
 
 
 
-                builder.Table<String, String, StringSerDes, StringSerDes>(config["spring.cloud.stream.bindings.output.destination"],null, config["table"] );
+                builder.Table<String, Order, StringSerDes,  SchemaAvroSerDes<Order>>(config["spring.cloud.stream.bindings.output.destination"],null, config["table"] );
 
                 var t = builder.Build();
 
@@ -88,13 +90,21 @@ namespace simple_netcore_source.Services
 
             if (isRunningState)
             {
-                var serdes = new StringSerDes();
-                producer.Produce(config["spring.cloud.stream.bindings.output.destination"],
-                    new Confluent.Kafka.Message<byte[], byte[]>
+                    var serdes = new SchemaAvroSerDes<Order>();
+                    var keySerdes = new StringSerDes();
+                    producer.Produce(config["spring.cloud.stream.bindings.output.destination"],
+                      new Confluent.Kafka.Message<byte[], byte[]>
                     {
-                        Key = serdes.Serialize("key1", new SerializationContext()),
-                        Value = serdes.Serialize("coucou", new SerializationContext())
+                        Key = keySerdes.Serialize("key1", new SerializationContext()),
+                        Value = serdes.Serialize(new Order
+                    {
+                        order_id = 1,
+                        price = 123.5F,
+                        product_id = 1
+                    
+                    }, new SerializationContext())
                     });
+                    
                 Thread.Sleep(50);
             }
 
