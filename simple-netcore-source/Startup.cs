@@ -24,8 +24,9 @@ namespace simple_netcore_source {
         public void ConfigureServices (IServiceCollection services) {
             var appSettingSection = Configuration.GetSection ("AppSettings");
             services.Configure<AppSettings> (appSettingSection);
-            services.AddScoped<IHealthCheckService, HealthCheckService> ();
-           services.AddHostedService<NStreamSource>();
+            services.AddScoped<IHealthCheckService, HealthCheckService>();
+            services.AddScoped<IDataService, DataService> ();
+            services.AddHostedService<NStreamSource>();
             services.AddControllers ();
 
         }
