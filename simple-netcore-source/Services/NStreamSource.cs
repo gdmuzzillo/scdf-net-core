@@ -49,6 +49,9 @@ namespace simple_netcore_source.Services
                 var sConfig = new StreamConfig<StringSerDes, StringSerDes>();
                 sConfig.ApplicationId = config["SPRING_CLOUD_APPLICATION_GUID"];
                 sConfig.BootstrapServers = config["SPRING_CLOUD_STREAM_KAFKA_BINDER_BROKERS"];
+                sConfig.SchemaRegistryUrl = config["SchemaRegistryUrl"];
+                sConfig.AutoRegisterSchemas = true;
+
 
                 var supplier = new SyncKafkaSupplier();
                 var producer = supplier.GetProducer(sConfig.ToProducerConfig());
@@ -86,7 +89,7 @@ namespace simple_netcore_source.Services
             if (isRunningState)
             {
                 var serdes = new StringSerDes();
-                producer.Produce("topic",
+                producer.Produce(config["spring.cloud.stream.bindings.output.destination"],
                     new Confluent.Kafka.Message<byte[], byte[]>
                     {
                         Key = serdes.Serialize("key1", new SerializationContext()),
