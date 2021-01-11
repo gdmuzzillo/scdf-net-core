@@ -1,7 +1,7 @@
 using System;
 using Microsoft.AspNetCore.Mvc;
-using simple_netcore_processor.Services;
-namespace simple_netcore_processor.Controllers {
+using simple_netcore_source.Services;
+namespace simple_netcore_source.Controllers {
     [Produces ("application/json")]
     [Route ("actuator/")]
     [ApiController]

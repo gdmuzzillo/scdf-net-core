@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.Hosting;
 
 
-namespace simple_netcore_processor
+namespace simple_netcore_source
 {
     public class Program
    {
