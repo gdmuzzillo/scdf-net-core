@@ -10,6 +10,10 @@ using simple_netcore_source.Helpers;
 using Confluent.Kafka;
 using com.avro.bean;
 using Streamiz.Kafka.Net.SchemaRegistry.SerDes.Avro;
+using Streamiz.Kafka.Net.State;
+using Streamiz.Kafka.Net.State.InMemory;
+using Streamiz.Kafka.Net.Table;
+using Streamiz.Kafka.Net.Crosscutting;
 namespace simple_netcore_source.Services
 {
     public class NStreamSource : BackgroundService, INStreamSource 
@@ -19,6 +23,9 @@ namespace simple_netcore_source.Services
         private IServiceProvider _services;
 
         private IDataService _dataService;
+
+      
+
         public NStreamSource(IConfiguration config, IServiceProvider services)
         {
             _config = config;
@@ -44,24 +51,25 @@ namespace simple_netcore_source.Services
                 DateTime dt = DateTime.Now;
 
 
-                String[] capture = this._dataService.readData();
+                Order[] capture = this._dataService.readData();
 
                 // Inyectamos los datos obtenidos al Stream
 
-                var sConfig = new StreamConfig<StringSerDes, StringSerDes>();
+                var sConfig = new StreamConfig<StringSerDes,  SchemaAvroSerDes<Order>>();
                 sConfig.ApplicationId = config["SPRING_CLOUD_APPLICATION_GUID"];
                 sConfig.BootstrapServers = config["SPRING_CLOUD_STREAM_KAFKA_BINDER_BROKERS"];
-                sConfig.SchemaRegistryUrl = config["SchemaRegistryUrl"];
-                sConfig.AutoRegisterSchemas = true;
+                sConfig.SchemaRegistryUrl=config["SchemaRegistryUrl"];
+                sConfig.AutoRegisterSchemas=true;
 
 
-                var supplier = new SyncKafkaSupplier();
+                var supplier = new SyncKafkaSupplier(new KafkaLoggerAdapter(sConfig));
                 var producer = supplier.GetProducer(sConfig.ToProducerConfig());
                 StreamBuilder builder = new StreamBuilder();
 
+                var serdes = new SchemaAvroSerDes<Order>();
+                var keySerdes = new StringSerDes();
 
-
-                builder.Table<String, Order, StringSerDes,  SchemaAvroSerDes<Order>>(config["spring.cloud.stream.bindings.output.destination"],null, config["table"] );
+                builder.Table(config["spring.cloud.stream.bindings.output.destination"], keySerdes, serdes,InMemory<string, Order>.As(config["table"]));
 
                 var t = builder.Build();
 
@@ -89,9 +97,9 @@ namespace simple_netcore_source.Services
             }
 
             if (isRunningState)
-            {
-                    var serdes = new SchemaAvroSerDes<Order>();
-                    var keySerdes = new StringSerDes();
+                {
+                    
+
                     producer.Produce(config["spring.cloud.stream.bindings.output.destination"],
                       new Confluent.Kafka.Message<byte[], byte[]>
                     {
@@ -103,6 +111,12 @@ namespace simple_netcore_source.Services
                         product_id = 1
                     
                     }, new SerializationContext())
+                    },  (d) =>
+                    {
+                        if (d.Status == PersistenceStatus.Persisted)
+                        {
+                            Console.WriteLine("Message sent !");
+                        }
                     });
                     
                 Thread.Sleep(50);

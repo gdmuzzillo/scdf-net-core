@@ -4,6 +4,7 @@
    // For further information visit https://github.com/OmniSharp/omnisharp-vscode/blob/master/debugger-launchjson.md
    "version": "0.2.0",
    "configurations": [
+
         {
             "name": ".NET Core Launch (console)",
             "type": "coreclr",
@@ -11,7 +12,29 @@
             "preLaunchTask": "build",
             // If you have changed target frameworks, make sure to update the program path.
             "program": "${workspaceFolder}/bin/Debug/netcoreapp3.1/simple-netcore-source.dll",
-            "args": [],
+            "args": [
+                            "--spring.cloud.dataflow.stream.app.label=simple-netcore-source",
+                            "--management.metrics.export.prometheus.enabled=true",
+                            "--SchemaRegistryUrl=http://nlt-service-registry.apps.ocpnltools.clusters.nalabs.ml/api/ccompat",
+                            "--spring.cloud.stream.metrics.properties=spring.application.name,spring.application.index,spring.cloud.application.*,spring.cloud.dataflow.*",
+                            "--spring.cloud.dataflow.stream.name=test-gus-netcore-source",
+                            "--spring.metrics.export.triggers.application.includes=integration**",
+                            "--spring.cloud.stream.metrics.key=test-gus-netcore-source.simple-netcore-source.${spring.cloud.application.guid}",
+                            "--file=filedata.csv",
+                            "--spring.cloud.stream.bindings.output.producer.requiredGroups=test-gus-netcore-source",
+                            "--spring.cloud.stream.bindings.output.destination=test-gus-netcore-source.simple-netcore-source",
+                            "--management.metrics.export.prometheus.rsocket.port=7001",
+                            "--management.metrics.export.prometheus.rsocket.enabled=true",
+                            "--management.metrics.export.prometheus.rsocket.host=prometheus-proxy",
+                            "--spring.cloud.dataflow.stream.app.type=source",
+                            "--table=inputTable"
+            ],
+            "env": {
+                    "SPRING_CLOUD_STREAM_KAFKA_BINDER_BROKERS":"nalabs-tools-kafka-brokers:9092",
+                    "SPRING_CLOUD_APPLICATION_GROUP":"test-gus-netcore-source",
+                    "SPRING_CLOUD_APPLICATION_GUID":"cb6b9ec4-02d9-4ea0-a9ef-8b67cec1e8a1",
+                    "SPRING_CLOUD_STREAM_KAFKA_BINDER_ZK_NODES":"nalabs-tools-zookeeper-nodes:2181"
+            },
             "cwd": "${workspaceFolder}",
             // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console
             "console": "internalConsole",
