@@ -31,11 +31,9 @@ namespace simple_netcore_processor.Services {
             sConfig.ApplicationId = config["SPRING_CLOUD_APPLICATION_GUID"];
             sConfig.BootstrapServers = config["SPRING_CLOUD_STREAM_KAFKA_BINDER_BROKERS"];
 
-            sConfig.AutoRegisterSchemas = false;
+            sConfig.AutoRegisterSchemas = true;
             sConfig.SchemaRegistryUrl = config["schemaRegistry"];
             
-
-
             StreamBuilder builder = new StreamBuilder();
 
             var table = builder.Table(config["simpleNetcoreProcessor.externaltopic"],
