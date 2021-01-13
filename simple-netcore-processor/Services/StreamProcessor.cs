@@ -2,7 +2,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Confluent.Kafka;
-using simple_netcore_processor.model;
+using com.avro.bean;
 using Microsoft.Extensions.Configuration;
 using Streamiz.Kafka.Net;
 using Streamiz.Kafka.Net.SerDes;
@@ -26,7 +26,7 @@ namespace simple_netcore_processor.Services {
         public async Task process (IConfiguration config) {
 
             Console.WriteLine("Process");
-            var sConfig = new StreamConfig<StringSerDes, StringSerDes>();
+            var sConfig = new StreamConfig<StringSerDes, SchemaAvroSerDes<Order>>();
 
             sConfig.ApplicationId = config["SPRING_CLOUD_APPLICATION_GUID"];
             sConfig.BootstrapServers = config["SPRING_CLOUD_STREAM_KAFKA_BINDER_BROKERS"];
@@ -39,13 +39,20 @@ namespace simple_netcore_processor.Services {
             StreamBuilder builder = new StreamBuilder();
 
             var table = builder.Table(config["simpleNetcoreProcessor.externaltopic"],
-                                new Int32SerDes(),
+                                new StringSerDes(),
                                 new SchemaAvroSerDes<Product>(),
-                                InMemory<Int32,Product>.As(config["simpleNetcoreProcessor.table"]));
+                                InMemory<String,Product>.As(config["simpleNetcoreProcessor.table"]));
 
-            builder.Stream<Int32, Product, Int32SerDes, SchemaAvroSerDes<Product>>(config["spring.cloud.stream.bindings.input.destination"])
-                    .Join(table, (order, product) => order + product.data)
-            .To(config["spring.cloud.stream.bindings.output.destination"]);
+            builder.Stream<string, Order, StringSerDes, SchemaAvroSerDes<Order>>(config["spring.cloud.stream.bindings.input.destination"])
+                    .Join(table, (order, product) =>new OrderProduct
+                    {
+                        order_id = order.order_id,
+                        price = order.price,
+                        product_id = product.product_id,
+                        product_name = product.name,
+                        product_price = product.price
+                    })
+            .To<StringSerDes, SchemaAvroSerDes<OrderProduct>>(config["spring.cloud.stream.bindings.output.destination"]);
 
             Topology t = builder.Build();
             KafkaStream stream = new KafkaStream(t, sConfig);
