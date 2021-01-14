@@ -6,7 +6,6 @@ namespace simple_netcore_source.Helpers
 {
     public class SyncKafkaSupplier : IKafkaSupplier
     {
-        SyncProducer producer = null;
         private readonly KafkaLoggerAdapter loggerAdapter = null;
 
         public SyncKafkaSupplier(KafkaLoggerAdapter loggerAdapter)

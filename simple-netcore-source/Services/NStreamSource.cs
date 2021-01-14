@@ -10,10 +10,8 @@ using simple_netcore_source.Helpers;
 using Confluent.Kafka;
 using com.avro.bean;
 using Streamiz.Kafka.Net.SchemaRegistry.SerDes.Avro;
-using Streamiz.Kafka.Net.State;
-using Streamiz.Kafka.Net.State.InMemory;
 using Streamiz.Kafka.Net.Table;
-using Streamiz.Kafka.Net.Crosscutting;
+
 namespace simple_netcore_source.Services
 {
     public class NStreamSource : BackgroundService, INStreamSource 
@@ -59,21 +57,21 @@ namespace simple_netcore_source.Services
                 sConfig.ApplicationId = config["SPRING_CLOUD_APPLICATION_GUID"];
                 sConfig.BootstrapServers = config["SPRING_CLOUD_STREAM_KAFKA_BINDER_BROKERS"];
                 sConfig.SchemaRegistryUrl=config["SchemaRegistryUrl"];
-                sConfig.AutoRegisterSchemas=true;
-
+                sConfig.AutoRegisterSchemas = true;
+                sConfig.NumStreamThreads = 1;
 
                 var supplier = new SyncKafkaSupplier(new KafkaLoggerAdapter(sConfig));
+                
                 var producer = supplier.GetProducer(sConfig.ToProducerConfig());
+                
                 StreamBuilder builder = new StreamBuilder();
 
                 var serdes = new SchemaAvroSerDes<Order>();
                 var keySerdes = new StringSerDes();
 
-                builder.Table(config["spring.cloud.stream.bindings.output.destination"], keySerdes, serdes,InMemory<string, Order>.As(config["table"]));
+                builder.Table(config["spring.cloud.stream.bindings.output.destination"], keySerdes, serdes,InMemory<string, Order>.As(config["table"]),config["table"]);
 
                 var t = builder.Build();
-
-
                 KafkaStream stream = new KafkaStream(t, sConfig, supplier);
                 
                 stream.StateChanged += (old, @new) =>

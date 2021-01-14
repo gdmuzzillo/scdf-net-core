@@ -38,9 +38,7 @@ namespace simple_netcore_source {
                 app.UseDeveloperExceptionPage ();
             }
 
-          //  app.UseHttpsRedirection ();
-
-            app.UseRouting ();
+                     app.UseRouting ();
 
             app.UseAuthorization ();
 
