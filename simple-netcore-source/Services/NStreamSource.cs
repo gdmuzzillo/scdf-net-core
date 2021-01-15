@@ -38,75 +38,86 @@ namespace simple_netcore_source.Services {
 
             using (var scope = services.CreateScope ()) {
                 this._dataService = scope.ServiceProvider
-                    .GetRequiredService<IDataService> ();
+                    .GetRequiredService<IDataService>();
 
                 bool isRunningState = false;
 
-                var timeout = TimeSpan.FromSeconds (10);
+                var timeout = TimeSpan.FromSeconds(10);
                 DateTime dt = DateTime.Now;
 
-                Order[] capture = this._dataService.readData ();
+                Order[] capture = this._dataService.readData();
 
                 // Inyectamos los datos obtenidos al Stream
 
-                var sConfig = new StreamConfig<StringSerDes, StringSerDes> ();
+                var sConfig = new StreamConfig<StringSerDes, StringSerDes>();
                 sConfig.ApplicationId = config["SPRING_CLOUD_APPLICATION_GROUP"];
                 sConfig.BootstrapServers = config["SPRING_CLOUD_STREAM_KAFKA_BINDER_BROKERS"];
                 sConfig.SchemaRegistryUrl = config["SchemaRegistryUrl"];
                 sConfig.AutoRegisterSchemas = true;
                 sConfig.NumStreamThreads = 10;
                 sConfig.Acks = Acks.All;
+//                sConfig.AddConsumerConfig( "AllowAutoCreateTopics" , "true"  );
 
-                var supplier = new SyncKafkaSupplier (new KafkaLoggerAdapter (sConfig));
 
-                var producerConfig = sConfig.ToProducerConfig ();
+                var supplier = new SyncKafkaSupplier(new KafkaLoggerAdapter(sConfig));
+
+                var producerConfig = sConfig.ToProducerConfig();
                 var adminConfig = sConfig.ToAdminConfig(sConfig.ApplicationId);
 
-                var producer = supplier.GetProducer (producerConfig);
+                var producer = supplier.GetProducer(producerConfig);
 
-                StreamBuilder builder = new StreamBuilder ();
+                StreamBuilder builder = new StreamBuilder();
 
-                var serdes = new SchemaAvroSerDes<Order> ();
-                var keySerdes = new StringSerDes ();
+                var serdes = new SchemaAvroSerDes<Order>();
+                var keySerdes = new StringSerDes();
 
-                builder.Table (destTopic, keySerdes, serdes, InMemory<string, Order>.As (config["table"]));
+                builder.Table(destTopic, keySerdes, serdes, InMemory<string, Order>.As(config["table"]));
 
-                var t = builder.Build ();
-                KafkaStream stream = new KafkaStream (t, sConfig, supplier);
+                var t = builder.Build();
+                KafkaStream stream = new KafkaStream(t, sConfig, supplier);
 
-                stream.StateChanged += (old, @new) => {
-                    if (@new.Equals (KafkaStream.State.RUNNING)) {
+                stream.StateChanged += (old, @new) =>
+                {
+                    if (@new.Equals(KafkaStream.State.RUNNING))
+                    {
                         isRunningState = true;
                     }
                 };
 
-                await stream.StartAsync ();
+                await stream.StartAsync();
 
-                while (!isRunningState) {
-                    Thread.Sleep (250);
-                    if (DateTime.Now > dt + timeout) {
+                while (!isRunningState)
+                {
+                    Thread.Sleep(250);
+                    if (DateTime.Now > dt + timeout)
+                    {
                         break;
                     }
                 }
 
-                if (isRunningState) {
+                if (isRunningState)
+                {
 
-                    producer.Produce (destTopic,
-                        new Confluent.Kafka.Message<byte[], byte[]> {
-                            Key = keySerdes.Serialize ("key1", new SerializationContext ()),
-                            Value = serdes.Serialize (new Order {
+                    producer.Produce(destTopic,
+                        new Confluent.Kafka.Message<byte[], byte[]>
+                        {
+                            Key = keySerdes.Serialize("key1", new SerializationContext()),
+                            Value = serdes.Serialize(new Order
+                            {
                                 order_id = 1,
-                                    price = 123.5F,
-                                    product_id = 1
+                                price = 123.5F,
+                                product_id = 1
 
-                            }, new SerializationContext ())
-                        }, (d) => {
-                            if (d.Status == PersistenceStatus.Persisted) {
-                                Console.WriteLine ("Message sent !");
+                            }, new SerializationContext())
+                        }, (d) =>
+                        {
+                            if (d.Status == PersistenceStatus.Persisted)
+                            {
+                                Console.WriteLine("Message sent !");
                             }
                         });
 
-                    Thread.Sleep (50);
+                    Thread.Sleep(50);
                 }
 
             }
