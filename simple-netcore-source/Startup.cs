@@ -24,21 +24,21 @@ namespace simple_netcore_source {
         public void ConfigureServices (IServiceCollection services) {
             var appSettingSection = Configuration.GetSection ("AppSettings");
             services.Configure<AppSettings> (appSettingSection);
-            services.AddScoped<IHealthCheckService, HealthCheckService>();
+            services.AddSingleton<IConfiguration> (Configuration);
+            services.AddScoped<IHealthCheckService, HealthCheckService> ();
             services.AddScoped<IDataService, DataService> ();
-            services.AddHostedService<NStreamSource>();
+            services.AddHostedService<NStreamSource> ();
             services.AddControllers ();
 
         }
 
-        
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure (IApplicationBuilder app, IWebHostEnvironment env) {
             if (env.IsDevelopment ()) {
                 app.UseDeveloperExceptionPage ();
             }
 
-                     app.UseRouting ();
+            app.UseRouting ();
 
             app.UseAuthorization ();
 

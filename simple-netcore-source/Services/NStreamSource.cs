@@ -1,127 +1,111 @@
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Hosting;
-using Streamiz.Kafka.Net;
-using Streamiz.Kafka.Net.SerDes;
-using simple_netcore_source.Helpers;
-using Confluent.Kafka;
 using com.avro.bean;
+using Confluent.Kafka;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using simple_netcore_source.Helpers;
+using Streamiz.Kafka.Net;
 using Streamiz.Kafka.Net.SchemaRegistry.SerDes.Avro;
+using Streamiz.Kafka.Net.SerDes;
 using Streamiz.Kafka.Net.Table;
 
-namespace simple_netcore_source.Services
-{
-    public class NStreamSource : BackgroundService, INStreamSource 
-    {
+namespace simple_netcore_source.Services {
+    public class NStreamSource : BackgroundService, INStreamSource {
 
         private readonly IConfiguration _config;
         private IServiceProvider _services;
 
         private IDataService _dataService;
 
-      
-
-        public NStreamSource(IConfiguration config, IServiceProvider services)
-        {
+        public NStreamSource (IConfiguration config, IServiceProvider services) {
             _config = config;
             _services = services;
         }
-        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
-        {
-            await exec(_config, _services);
+        protected override async Task ExecuteAsync (CancellationToken stoppingToken) {
+            await exec (_config, _services);
         }
 
-        public async Task exec(IConfiguration config, IServiceProvider services){
+        public async Task exec (IConfiguration config, IServiceProvider services) {
 
-            Console.WriteLine("Process");
+            Console.WriteLine ("Process");
 
-            using (var scope = services.CreateScope())
-            {
-                this._dataService = scope.ServiceProvider
-                        .GetRequiredService<IDataService>();
+            var destTopic = config["spring.cloud.stream.bindings.output.destination"];
 
-                bool isRunningState = false;
-                 
-                var timeout = TimeSpan.FromSeconds(10);
-                DateTime dt = DateTime.Now;
+            Console.WriteLine (destTopic);
 
+        using (var scope = services.CreateScope ()) {
+            this._dataService = scope.ServiceProvider
+                .GetRequiredService<IDataService> ();
 
-                Order[] capture = this._dataService.readData();
+            bool isRunningState = false;
 
-                // Inyectamos los datos obtenidos al Stream
+            var timeout = TimeSpan.FromSeconds (10);
+            DateTime dt = DateTime.Now;
 
-                var sConfig = new StreamConfig<StringSerDes,  SchemaAvroSerDes<Order>>();
-                sConfig.ApplicationId = config["SPRING_CLOUD_APPLICATION_GUID"];
-                sConfig.BootstrapServers = config["SPRING_CLOUD_STREAM_KAFKA_BINDER_BROKERS"];
-                sConfig.SchemaRegistryUrl=config["SchemaRegistryUrl"];
-                sConfig.AutoRegisterSchemas = true;
-                sConfig.NumStreamThreads = 1;
+            Order[] capture = this._dataService.readData ();
 
-                var supplier = new SyncKafkaSupplier(new KafkaLoggerAdapter(sConfig));
-                
-                var producer = supplier.GetProducer(sConfig.ToProducerConfig());
-                
-                StreamBuilder builder = new StreamBuilder();
+            // Inyectamos los datos obtenidos al Stream
 
-                var serdes = new SchemaAvroSerDes<Order>();
-                var keySerdes = new StringSerDes();
+            var sConfig = new StreamConfig<StringSerDes, StringSerDes> ();
+            sConfig.ApplicationId = config["SPRING_CLOUD_APPLICATION_GROUP"];
+            sConfig.BootstrapServers = config["SPRING_CLOUD_STREAM_KAFKA_BINDER_BROKERS"];
+            sConfig.SchemaRegistryUrl = config["SchemaRegistryUrl"];
+            sConfig.AutoRegisterSchemas = true;
+            sConfig.NumStreamThreads = 10;
 
-                builder.Table(config["spring.cloud.stream.bindings.output.destination"], keySerdes, serdes,InMemory<string, Order>.As(config["table"]),config["table"]);
+            var supplier = new SyncKafkaSupplier (new KafkaLoggerAdapter (sConfig));
 
-                var t = builder.Build();
-                KafkaStream stream = new KafkaStream(t, sConfig, supplier);
-                
-                stream.StateChanged += (old, @new) =>
-                {
-                    if (@new.Equals(KafkaStream.State.RUNNING))
-                    {
-                        isRunningState = true;
-                    }
-                };
+            var producer = supplier.GetProducer (sConfig.ToProducerConfig ());
 
+            StreamBuilder builder = new StreamBuilder ();
 
-                await stream.StartAsync();
-                
-                while (!isRunningState)
-            {
-                Thread.Sleep(250);
-                if (DateTime.Now > dt + timeout)
-                {
+            var serdes = new SchemaAvroSerDes<Order> ();
+            var keySerdes = new StringSerDes ();
+
+            builder.Table (destTopic, keySerdes, serdes, InMemory<string, Order>.As (config["table"]));
+
+            var t = builder.Build ();
+            KafkaStream stream = new KafkaStream (t, sConfig, supplier);
+
+            stream.StateChanged += (old, @new) => {
+                if (@new.Equals (KafkaStream.State.RUNNING)) {
+                    isRunningState = true;
+                }
+            };
+
+            await stream.StartAsync ();
+
+            while (!isRunningState) {
+                Thread.Sleep (250);
+                if (DateTime.Now > dt + timeout) {
                     break;
                 }
             }
 
-            if (isRunningState)
-                {
-                    
+            if (isRunningState) {
 
-                    producer.Produce(config["spring.cloud.stream.bindings.output.destination"],
-                      new Confluent.Kafka.Message<byte[], byte[]>
-                    {
-                        Key = keySerdes.Serialize("key1", new SerializationContext()),
-                        Value = serdes.Serialize(new Order
-                    {
-                        order_id = 1,
-                        price = 123.5F,
-                        product_id = 1
-                    
-                    }, new SerializationContext())
-                    },  (d) =>
-                    {
-                        if (d.Status == PersistenceStatus.Persisted)
-                        {
-                            Console.WriteLine("Message sent !");
+                producer.Produce (destTopic,
+                    new Confluent.Kafka.Message<byte[], byte[]> {
+                        Key = keySerdes.Serialize ("key1", new SerializationContext ()),
+                        Value = serdes.Serialize (new Order {
+                            order_id = 1,
+                                price = 123.5F,
+                                product_id = 1
+
+                        }, new SerializationContext ())
+                    }, (d) => {
+                        if (d.Status == PersistenceStatus.Persisted) {
+                            Console.WriteLine ("Message sent !");
                         }
                     });
-                    
-                Thread.Sleep(50);
+
+                Thread.Sleep (50);
             }
 
-
-            }
         }
     }
+}
 }
