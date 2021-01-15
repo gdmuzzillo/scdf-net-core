@@ -1,8 +1,10 @@
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using com.avro.bean;
 using Confluent.Kafka;
+using Confluent.Kafka.Admin;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -56,13 +58,37 @@ namespace simple_netcore_source.Services {
                 sConfig.AutoRegisterSchemas = true;
                 sConfig.NumStreamThreads = 10;
                 sConfig.Acks = Acks.All;
-//                sConfig.AddConsumerConfig( "AllowAutoCreateTopics" , "true"  );
+              //  sConfig.AddConsumerConfig( "AllowAutoCreateTopics" , "true"  );
 
 
                 var supplier = new SyncKafkaSupplier(new KafkaLoggerAdapter(sConfig));
 
                 var producerConfig = sConfig.ToProducerConfig();
                 var adminConfig = sConfig.ToAdminConfig(sConfig.ApplicationId);
+
+                var admin = supplier.GetAdmin(adminConfig);
+               
+                try{
+
+                    var topic = new TopicSpecification
+                    {
+                        Name = destTopic,
+                        NumPartitions = 1,
+                        ReplicationFactor = 3
+                    };
+
+
+                    IList<TopicSpecification> topics = new List<TopicSpecification>();
+
+                    topics.Add(topic);
+
+                    await admin.CreateTopicsAsync(topics);
+                }
+                catch (Exception topicExists)
+                {
+                    Console.WriteLine("Topic alreade exists");
+                    Console.Write(topicExists);
+                }
 
                 var producer = supplier.GetProducer(producerConfig);
 
@@ -107,6 +133,27 @@ namespace simple_netcore_source.Services {
                                 order_id = 1,
                                 price = 123.5F,
                                 product_id = 1
+
+                            }, new SerializationContext())
+                        }, (d) =>
+                        {
+                            if (d.Status == PersistenceStatus.Persisted)
+                            {
+                                Console.WriteLine("Message sent !");
+                            }
+                        });
+
+                    //create a well formatted Product in external topic
+                    
+                    producer.Produce("product-external",
+                        new Confluent.Kafka.Message<byte[], byte[]>
+                        {
+                            Key = keySerdes.Serialize("key1", new SerializationContext()),
+                            Value = new SchemaAvroSerDes<Product>().Serialize(new Product
+                            {
+                                product_id = 1,
+                                price = 123.5F,
+                                name = "NC Kafka Producer Software"
 
                             }, new SerializationContext())
                         }, (d) =>

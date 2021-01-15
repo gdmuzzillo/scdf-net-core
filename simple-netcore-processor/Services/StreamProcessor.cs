@@ -32,7 +32,7 @@ namespace simple_netcore_processor.Services {
             sConfig.BootstrapServers = config["SPRING_CLOUD_STREAM_KAFKA_BINDER_BROKERS"];
 
             sConfig.AutoRegisterSchemas = true;
-            sConfig.SchemaRegistryUrl = config["schemaRegistry"];
+            sConfig.SchemaRegistryUrl = config["SchemaRegistryUrl"];
             
             StreamBuilder builder = new StreamBuilder();
 
