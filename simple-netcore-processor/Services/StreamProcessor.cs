@@ -36,7 +36,7 @@ namespace simple_netcore_processor.Services {
             sConfig.AutoRegisterSchemas = true;
             sConfig.NumStreamThreads = 1;
             sConfig.Acks = Acks.All;
-            sConfig.Debug = "consumer,cgrp,topic,fetch";
+            //sConfig.Debug = "consumer,cgrp,topic,fetch";
             sConfig.AddConsumerConfig("allow.auto.create.topics", "true");
             sConfig.MaxTaskIdleMs = 50;
             sConfig.InnerExceptionHandler = (e) => ExceptionHandlerResponse.CONTINUE;

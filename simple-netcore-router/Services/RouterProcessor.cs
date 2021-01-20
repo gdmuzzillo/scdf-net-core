@@ -44,7 +44,7 @@ namespace simple_netcore_router.Services {
             sConfig.AutoRegisterSchemas = true;
             sConfig.NumStreamThreads = 1;
             sConfig.Acks = Acks.All;
-            sConfig.Debug = "consumer,cgrp,topic,fetch";
+            //sConfig.Debug = "consumer,cgrp,topic,fetch";
             sConfig.AddConsumerConfig ("allow.auto.create.topics", "true");
             sConfig.MaxTaskIdleMs = 50;
             sConfig.InnerExceptionHandler = (e) => ExceptionHandlerResponse.CONTINUE;
@@ -64,12 +64,8 @@ namespace simple_netcore_router.Services {
                 InMemory<int, Endpoint>.As (config["endpoints-table"]));
 
             builder.Stream<int, OrderProduct, Int32SerDes, SchemaAvroSerDes<OrderProduct>> (config["spring.cloud.stream.bindings.input.destination"])
-                .FlatMap<int, OrderProduct> ((k, v) => {
-                    List<KeyValuePair<int, OrderProduct>> results = new List<KeyValuePair<int, OrderProduct>> ();
-
-                    results.Add (KeyValuePair.Create ( v.product_id,v));
-                    return results;
-
+                .Map<int, OrderProduct> ((k, v) => {
+                    return (KeyValuePair.Create ( v.product_id,v));
                 })
                 .Join (table, (orderProduct, endpoint) => {
                     Console.WriteLine ("OrderProduct: " + orderProduct?.order_id);

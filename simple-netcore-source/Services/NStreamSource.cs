@@ -149,14 +149,21 @@ namespace simple_netcore_source.Services {
                     //   //create a well formatted Endpoint in external topic
                     var endpProducer = new ProducerBuilder<byte[], Endpoint>(producerConfig)
                     .SetValueSerializer(new AvroSerializer<Endpoint>(schemaRegistryClient, new AvroSerializerConfig { AutoRegisterSchemas = true }).AsSyncOverAsync()).Build();
+                 
+                    //create a well formatted Product in external topic
+                    var productProducer = new ProducerBuilder<byte[], Product>(producerConfig)
+                    .SetValueSerializer(new AvroSerializer<Product>(schemaRegistryClient, new AvroSerializerConfig { AutoRegisterSchemas = true }).AsSyncOverAsync()).Build();
+
+                    for (int k = 1; k < 10; k++)
+                    {
                         endpProducer.Produce("api-endpoints",
                             new Message<byte[], Endpoint>
                             {
-                                Key = new Int32SerDes().Serialize(1, new SerializationContext()),
+                                Key = new Int32SerDes().Serialize(k, new SerializationContext()),
                                 Value = new Endpoint
                                 {
-                                    endpoint_id = ("endpoint1"),
-                                    endpoint_url = ("http://endpoint" + keySerdes + "/"),
+                                    endpoint_id = ("endpoint" + k),
+                                    endpoint_url = ("http://endpoint" + k + "/"),
                                     http_method = "POST"
                                 }
                             }, (d) =>
@@ -167,54 +174,50 @@ namespace simple_netcore_source.Services {
                                 }
                             });
 
-                    
-
-
-                    //create a well formatted Product in external topic
-                    var productProducer = new ProducerBuilder<byte[], Product>(producerConfig)
-                    .SetValueSerializer(new AvroSerializer<Product>(schemaRegistryClient, new AvroSerializerConfig { AutoRegisterSchemas = true }).AsSyncOverAsync()).Build();
-
-                    productProducer.Produce("product-external",
-                        new Message<byte[], Product>
-                        {
-                            Key = new Int32SerDes().Serialize(1, new SerializationContext()),
-                            Value = new Product
+                        productProducer.Produce("product-external",
+                            new Message<byte[], Product>
                             {
-                                name = "Producto de Software",
-                                price = 1234.5F,
-                                product_id = 3
-                            }
-                        }, (d) =>
-                        {
-                            if (d.Status == PersistenceStatus.Persisted)
+                                Key = new Int32SerDes().Serialize(1, new SerializationContext()),
+                                Value = new Product
+                                {
+                                    name = "Producto de Software",
+                                    price = 1234.5F,
+                                    product_id = 3
+                                }
+                            }, (d) =>
                             {
-                                Console.WriteLine("Product Message sent !");
-                            }
-                        });
+                                if (d.Status == PersistenceStatus.Persisted)
+                                {
+                                    Console.WriteLine("Product Message sent !");
+                                }
+                            });
 
+                    }
 
                     Thread.Sleep(10);
-
-                    producer.Produce(destTopic,
-                        new Confluent.Kafka.Message<byte[], byte[]>
-                        {
-                            Key = keySerdes.Serialize(1, new SerializationContext()),
-                            Value = serdes.Serialize(new Order
+                    
+                    for (int k = 1; k < 10; k++)
+                    {
+                        producer.Produce(destTopic,
+                            new Confluent.Kafka.Message<byte[], byte[]>
                             {
-                                order_id = 1,
-                                price = 123.5F,
-                                product_id = 1
+                                Key = keySerdes.Serialize(k, new SerializationContext()),
+                                Value = serdes.Serialize(new Order
+                                {
+                                    order_id = k,
+                                    price = 123.5F,
+                                    product_id = k
 
-                            }, new SerializationContext())
-                        }, (d) =>
-                        {
-                            if (d.Status == PersistenceStatus.Persisted)
+                                }, new SerializationContext())
+                            }, (d) =>
                             {
-                                Console.WriteLine("Order Message sent !");
-                            }
-                        });
+                                if (d.Status == PersistenceStatus.Persisted)
+                                {
+                                    Console.WriteLine("Order Message sent !");
+                                }
+                            });
+                    }
 
-         
 
                     Thread.Sleep(50);
                 }
