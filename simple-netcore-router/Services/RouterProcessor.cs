@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using com.avro.bean;
@@ -63,6 +64,13 @@ namespace simple_netcore_router.Services {
                 InMemory<int, Endpoint>.As (config["endpoints-table"]));
 
             builder.Stream<int, OrderProduct, Int32SerDes, SchemaAvroSerDes<OrderProduct>> (config["spring.cloud.stream.bindings.input.destination"])
+                .FlatMap<int, OrderProduct> ((k, v) => {
+                    List<KeyValuePair<int, OrderProduct>> results = new List<KeyValuePair<int, OrderProduct>> ();
+
+                    results.Add (KeyValuePair.Create ( v.product_id,v));
+                    return results;
+
+                })
                 .Join (table, (orderProduct, endpoint) => {
                     Console.WriteLine ("OrderProduct: " + orderProduct?.order_id);
                     Console.WriteLine ("Endpoint: " + endpoint?.endpoint_id);
@@ -75,7 +83,7 @@ namespace simple_netcore_router.Services {
                     return op;
                 })
                 .Peek ((k, v) => Console.WriteLine ($"Sending message {k}  to endpoint {v.endpoint.endpoint_url}"))
-            .Print(Printed<int, MessageDestination>.ToOut ());
+                .Print (Printed<int, MessageDestination>.ToOut ());
 
             Topology t = builder.Build ();
 

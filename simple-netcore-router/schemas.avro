@@ -1,0 +1,9 @@
+Endpoint Schema: 
+
+{"type":"record","name":"com.avro.bean.Endpoint","fields":[{"name":"endpoint_id","type":"string"},{"name":"endpoint_url","type":"string"},{"name":"http_method","type":"string"}]}
+
+
+Message Destination Schema: 
+
+
+{"type":"record","name":"com.avro.bean.MessageDestination","fields":[{"name":"messageId","type":"int"},{"name":"endpoint","type":{"type":"record","name":"com.avro.bean.Endpoint","fields":[{"name":"endpoint_id","type":"string"},{"name":"endpoint_url","type":"string"},{"name":"http_method","type":"string"}]}},{"name":"payload","type":{"type":"record","name":"com.avro.bean.OrderProduct","fields":[{"name":"order_id","type":"int"},{"name":"price","type":"float"},{"name":"product_id","type":"int"},{"name":"product_name","type":"string"},{"name":"product_price","type":"float"}]}}]}
