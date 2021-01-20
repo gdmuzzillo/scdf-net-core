@@ -1,0 +1,7 @@
+[
+{
+  "directory": "/home/gustavo/projects/andreani/netCoreComponents/simple-netcore-router/build",
+  "command": "/usr/bin/clang++-10    -g   -o CMakeFiles/simple-netcore-router.dir/main.cpp.o -c /home/gustavo/projects/andreani/netCoreComponents/simple-netcore-router/main.cpp",
+  "file": "/home/gustavo/projects/andreani/netCoreComponents/simple-netcore-router/main.cpp"
+}
+]

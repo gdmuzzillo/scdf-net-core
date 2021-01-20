@@ -13,7 +13,9 @@ using Streamiz.Kafka.Net;
 using Streamiz.Kafka.Net.SchemaRegistry.SerDes.Avro;
 using Streamiz.Kafka.Net.SerDes;
 using Streamiz.Kafka.Net.Table;
-
+using Confluent.Kafka.SyncOverAsync;
+using Confluent.SchemaRegistry;
+using Confluent.SchemaRegistry.Serdes;
 namespace simple_netcore_source.Services {
     public class NStreamSource : BackgroundService, INStreamSource {
 
@@ -36,9 +38,13 @@ namespace simple_netcore_source.Services {
 
             var destTopic = config["spring.cloud.stream.bindings.output.destination"];
 
-            Console.WriteLine (destTopic);
+            Console.WriteLine(destTopic);
 
-            using (var scope = services.CreateScope ()) {
+
+
+
+            using (var scope = services.CreateScope())
+            {
                 this._dataService = scope.ServiceProvider
                     .GetRequiredService<IDataService>();
 
@@ -51,15 +57,22 @@ namespace simple_netcore_source.Services {
 
                 // Inyectamos los datos obtenidos al Stream
 
+
                 var sConfig = new StreamConfig<StringSerDes, StringSerDes>();
-                sConfig.ApplicationId = config["SPRING_CLOUD_APPLICATION_GROUP"];
+                sConfig.ApplicationId = config["SPRING_CLOUD_APPLICATION_GUID"];
                 sConfig.BootstrapServers = config["SPRING_CLOUD_STREAM_KAFKA_BINDER_BROKERS"];
                 sConfig.SchemaRegistryUrl = config["SchemaRegistryUrl"];
                 sConfig.AutoRegisterSchemas = true;
                 sConfig.NumStreamThreads = 10;
                 sConfig.Acks = Acks.All;
-              //  sConfig.AddConsumerConfig( "AllowAutoCreateTopics" , "true"  );
+                sConfig.AddConsumerConfig("allow.auto.create.topics", "true");
+                sConfig.InnerExceptionHandler = (e) => ExceptionHandlerResponse.CONTINUE;
 
+                var schemaRegistryClient = new CachedSchemaRegistryClient
+                (new SchemaRegistryConfig
+                {
+                    Url = sConfig.SchemaRegistryUrl
+                });
 
                 var supplier = new SyncKafkaSupplier(new KafkaLoggerAdapter(sConfig));
 
@@ -67,37 +80,45 @@ namespace simple_netcore_source.Services {
                 var adminConfig = sConfig.ToAdminConfig(sConfig.ApplicationId);
 
                 var admin = supplier.GetAdmin(adminConfig);
-               
-                try{
 
-                    var topic = new TopicSpecification
-                    {
-                        Name = destTopic,
-                        NumPartitions = 1,
-                        ReplicationFactor = 3
-                    };
+                // try
+                // {
+
+                //     var topic = new TopicSpecification
+                //     {
+                //         Name = destTopic,
+                //         NumPartitions = 1,
+                //         ReplicationFactor = 3
+                //     };
+                //     var topicProduct = new TopicSpecification
+                //     {
+                //         Name = "product-external",
+                //         NumPartitions = 1,
+                //         ReplicationFactor = 3
+                //     };
 
 
-                    IList<TopicSpecification> topics = new List<TopicSpecification>();
+                //     IList<TopicSpecification> topics = new List<TopicSpecification>();
 
-                    topics.Add(topic);
+                //     topics.Add(topic);
+                //     topics.Add(topicProduct);
 
-                    await admin.CreateTopicsAsync(topics);
-                }
-                catch (Exception topicExists)
-                {
-                    Console.WriteLine("Topic alreade exists");
-                    Console.Write(topicExists);
-                }
+                //     await admin.CreateTopicsAsync(topics);
+                // }
+                // catch (Exception topicExists)
+                // {
+                //     Console.WriteLine("Topic alreade exists");
+                //     Console.Write(topicExists);
+                // }
 
                 var producer = supplier.GetProducer(producerConfig);
 
                 StreamBuilder builder = new StreamBuilder();
 
                 var serdes = new SchemaAvroSerDes<Order>();
-                var keySerdes = new StringSerDes();
+                var keySerdes = new Int32SerDes();
 
-                builder.Table(destTopic, keySerdes, serdes, InMemory<string, Order>.As(config["table"]));
+                builder.Table(destTopic, keySerdes, serdes, InMemory<int, Order>.As(config["table"]));
 
                 var t = builder.Build();
                 KafkaStream stream = new KafkaStream(t, sConfig, supplier);
@@ -124,10 +145,36 @@ namespace simple_netcore_source.Services {
                 if (isRunningState)
                 {
 
+
+                    //create a well formatted Product in external topic
+                    var productProducer = new ProducerBuilder<byte[], Product>(producerConfig)
+                    .SetValueSerializer(new AvroSerializer<Product>(schemaRegistryClient, new AvroSerializerConfig { AutoRegisterSchemas = true }).AsSyncOverAsync()).Build();
+
+                    productProducer.Produce("product-external",
+                        new Message<byte[], Product>
+                        {
+                            Key = new Int32SerDes().Serialize(1, new SerializationContext()),
+                            Value = new Product
+                            {
+                                name = "Producto de Software",
+                                price = 1234.5F,
+                                product_id = 3
+                            }
+                        }, (d) =>
+                        {
+                            if (d.Status == PersistenceStatus.Persisted)
+                            {
+                                Console.WriteLine("Product Message sent !");
+                            }
+                        });
+
+
+                    Thread.Sleep(10);
+
                     producer.Produce(destTopic,
                         new Confluent.Kafka.Message<byte[], byte[]>
                         {
-                            Key = keySerdes.Serialize("key1", new SerializationContext()),
+                            Key = keySerdes.Serialize(1, new SerializationContext()),
                             Value = serdes.Serialize(new Order
                             {
                                 order_id = 1,
@@ -139,30 +186,11 @@ namespace simple_netcore_source.Services {
                         {
                             if (d.Status == PersistenceStatus.Persisted)
                             {
-                                Console.WriteLine("Message sent !");
+                                Console.WriteLine("Order Message sent !");
                             }
                         });
 
-                    //create a well formatted Product in external topic
-                    
-                    producer.Produce("product-external",
-                        new Confluent.Kafka.Message<byte[], byte[]>
-                        {
-                            Key = keySerdes.Serialize("key1", new SerializationContext()),
-                            Value = new SchemaAvroSerDes<Product>().Serialize(new Product
-                            {
-                                product_id = 1,
-                                price = 123.5F,
-                                name = "NC Kafka Producer Software"
-
-                            }, new SerializationContext())
-                        }, (d) =>
-                        {
-                            if (d.Status == PersistenceStatus.Persisted)
-                            {
-                                Console.WriteLine("Message sent !");
-                            }
-                        });
+         
 
                     Thread.Sleep(50);
                 }

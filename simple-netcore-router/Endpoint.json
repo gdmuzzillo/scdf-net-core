@@ -1,0 +1,5 @@
+{
+    "endpoint_id": "sala1",
+    "endpoint_url": "https://test-api.samples.org/v1/ruta1",
+    "http_method": "POST"
+}

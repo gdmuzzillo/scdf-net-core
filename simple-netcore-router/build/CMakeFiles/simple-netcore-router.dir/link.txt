@@ -1,0 +1,1 @@
+/usr/bin/clang++-10  -g  -rdynamic CMakeFiles/simple-netcore-router.dir/main.cpp.o  -o simple-netcore-router 
