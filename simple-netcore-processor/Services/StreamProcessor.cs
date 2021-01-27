@@ -72,6 +72,7 @@ namespace simple_netcore_processor.Services {
                         };
                         return op;
                     } )
+            
             .To<Int32SerDes, SchemaAvroSerDes<OrderProduct>>(config["spring.cloud.stream.bindings.output.destination"]);
             Topology t = builder.Build();
             

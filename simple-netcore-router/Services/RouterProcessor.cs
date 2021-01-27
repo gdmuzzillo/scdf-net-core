@@ -12,12 +12,19 @@ using Streamiz.Kafka.Net.SchemaRegistry.SerDes.Avro;
 using Streamiz.Kafka.Net.SerDes;
 using Streamiz.Kafka.Net.Stream;
 using Streamiz.Kafka.Net.Table;
+using Prometheus;
 namespace simple_netcore_router.Services {
     public class RouterProcessor : BackgroundService, IRouterProcessor {
 
         private readonly IConfiguration _config;
+
+        
+        private readonly List<Counter> _messageCounterList;
+
+
         public RouterProcessor (IConfiguration config) {
             _config = config;
+            _messageCounterList =   new List<Counter>();
         }
         protected override async Task ExecuteAsync (CancellationToken stoppingToken) {
             await process (_config);
@@ -54,8 +61,7 @@ namespace simple_netcore_router.Services {
 
             MessageDestination op = new MessageDestination ();
 
-            var serializer = new SchemaAvroSerDes<OrderProduct> ();
-
+            var serializer = new SchemaAvroSerDes<OrderProduct>();
             StreamBuilder builder = new StreamBuilder ();
 
             var table = builder.Table (config["endpoints"],
@@ -63,9 +69,15 @@ namespace simple_netcore_router.Services {
                 new SchemaAvroSerDes<Endpoint> (),
                 InMemory<int, Endpoint>.As (config["endpoints-table"]));
 
-            builder.Stream<int, OrderProduct, Int32SerDes, SchemaAvroSerDes<OrderProduct>> (config["spring.cloud.stream.bindings.input.destination"])
-                .Map<int, OrderProduct> ((k, v) => {
-                    return (KeyValuePair.Create ( v.product_id,v));
+            builder.Stream<int, OrderProduct, Int32SerDes, SchemaAvroSerDes<OrderProduct>>(config["spring.cloud.stream.bindings.input.destination"])
+                .Map<int, OrderProduct>((k, v) =>
+                {
+                    return (KeyValuePair.Create(v.product_id, v));
+                })
+                .Peek((k, v) =>
+                {
+                Console.WriteLine($"Sending message {k}  to endpoint {v.product_id}");
+                //calcular metrica
                 })
                 .Join (table, (orderProduct, endpoint) => {
                     Console.WriteLine ("OrderProduct: " + orderProduct?.order_id);
@@ -78,7 +90,19 @@ namespace simple_netcore_router.Services {
                     };
                     return op;
                 })
-                .Peek ((k, v) => Console.WriteLine ($"Sending message {k}  to endpoint {v.endpoint.endpoint_url}"))
+                .Peek((k, v) =>
+                {
+                    Console.WriteLine($"Sending message {k}  to endpoint {v.endpoint.endpoint_url}");
+                    // crear metricas 
+                    if (_messageCounterList!= null  ){
+                        var counterMessage = Metrics
+                        .CreateCounter($"router_{v.endpoint.endpoint_id}_processed_total", $"Number of messages sent to {v.endpoint.endpoint_url}");
+
+                        counterMessage.Inc();
+
+                        _messageCounterList.Add(counterMessage);
+                    }
+                })
                 .Print (Printed<int, MessageDestination>.ToOut ());
 
             Topology t = builder.Build ();
