@@ -23,7 +23,7 @@ namespace simple_netcore_router{
                 .Build();
             
             //prometheus metrics
-            var metricServer = new KestrelMetricServer(Int32.Parse(config["app.simple-netcore-source.management.metrics.export.prometheus.rsocket.port"]), "/metrics");
+            var metricServer = new KestrelMetricServer(Int32.Parse(config["management.metrics.export.prometheus.rsocket.port"]), "/metrics");
             metricServer.Start();
 
             var host = new WebHostBuilder()
