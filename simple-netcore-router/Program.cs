@@ -6,7 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.Hosting;
-
+using Prometheus;
 
 namespace simple_netcore_router{
     public class Program
@@ -21,6 +21,10 @@ namespace simple_netcore_router{
                 .AddCommandLine(args)
                 .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
                 .Build();
+            
+            //prometheus metrics
+            var metricServer = new KestrelMetricServer(Int32.Parse(config["app.simple-netcore-source.management.metrics.export.prometheus.rsocket.port"]), "/metrics");
+            metricServer.Start();
 
             var host = new WebHostBuilder()
                 //.UseContentRoot(Directory.GetCurrentDirectory())

@@ -12,6 +12,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using simple_netcore_router.Helpers;
 using simple_netcore_router.Services;
+using Prometheus;
 namespace simple_netcore_router {
     public class Startup {
         public Startup (IConfiguration configuration) {
@@ -39,10 +40,12 @@ namespace simple_netcore_router {
             }
 
             app.UseRouting ();
-
+            app.UseHttpMetrics();
             app.UseAuthorization ();
 
-            app.UseEndpoints (endpoints => {
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapMetrics();
                 endpoints.MapControllers ();
             });
         }
